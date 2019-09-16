@@ -1,0 +1,1214 @@
+#include<stdio.h>
+#include<stdlib.h>
+#include<string.h>
+
+static int valor_total;
+
+typedef struct 
+{
+	int CPF, codigo_paciente;
+	
+	char nome_paciente[50], sexo, Telefone[10], data_nascimento[20];
+}paciente;
+
+typedef struct  
+{
+	int codigo_medico, CRM, codigo;
+
+	char nome[50], sexo, Telefone[10], Especialidade[20], data_nascimento[20]; 	
+}medico;
+
+typedef struct 
+{
+	char tipo[20], catExame[20];
+	int valor_exame, codigo;  
+}exame;
+
+typedef struct 
+{
+	char data_agendamento[20], hora_agendamento[20];
+	exame exame;
+	int cpf;
+	int CRM; 
+}agendamento;
+
+typedef struct
+{
+	//Local para armazenar os arquivos
+}sistema;
+
+//Funcoes do programa
+
+void limparT(){
+	system("clear");
+	system("cls");
+}
+void limparB(){
+    fflush(stdin);
+	//Windows
+	//fpurge(stdin);
+	//Linux
+}
+
+int Soma();
+void menuPrincipal();
+void Especialidades();
+void Atendimento();
+void VerCodPaciente();
+int Agendamento();
+void Exames();
+void SistemaOperacional();
+
+void CadastroMedicos();
+void CadastrarMedico();
+void DadosMedico();
+
+void excMed();
+void excPac();
+void excExa();
+
+void CadastroPaciente();
+void CadastrarPacientes();
+void DadosPaciente();
+void ListaPaciente();
+void AlterarPaciente();
+
+void CadastroExame();
+void CadastrarExames();
+void DadosExame();
+
+int Pediatria();
+int Cardiologia();
+int Oftalmologia();
+int Oncologia();
+int qtdMedico();
+int qtdPaciente();
+
+void relatorio();
+
+void PeriodoExame();
+
+int cpfLg;
+
+void salvarExame(agendamento a);
+
+
+int main()
+{
+	limparT();
+	limparB();
+	menuPrincipal();
+	return 0;
+}
+
+void menuPrincipal(){
+	int op;
+	
+	limparT();
+	limparB();
+	
+	printf("\n\t\t\t ********************\n");	
+	printf("\t\t 	 *     + SAUDE 	    *\n");
+	printf("\t\t\t ********************\n\n");
+	printf("\t\t 1- ATENDIMENTO\n\n");
+	printf("\t\t 2- ESPECIALIDADES\n\n");
+	printf("\t\t 3- SISTEMA OPERACIONAL\n\n");
+	printf("\t\t 0- SAIR\n");
+	scanf("%d",&op);
+	switch(op){
+		case 1:
+			Atendimento();
+			break;
+		case 2:
+			Especialidades();
+			break;
+		case 3:
+			SistemaOperacional();
+			break;
+		case 0:
+		limparT();
+		limparB();
+	
+			printf("\n\t\t ********************************************\n");	
+	printf("\t 	 *     OBRIGADO POR USAR O SISTEMA 	    *\n");
+	printf("\t\t ********************************************\n\n");
+	
+			exit(0);
+			break;
+		default:
+			printf("Opcao invalida");
+	}
+}
+
+
+void Atendimento(){
+	int op;
+	paciente atendimento;
+	do{
+	limparT();
+	limparB();	
+	
+	printf("\n\t\t\t *******************\n");	
+	printf("\t\t\t *    AGENDAMENTO  *\n");
+	printf("\t\t\t *******************\n");
+	printf("\n\t\t1- FAZER LOGUIN\n\n");
+	printf("\t\t2- NAO POSSUI CADASTRO\n\n");
+	printf("\t\t0- VOLTAR\n");
+	scanf("%d",&op);
+	switch(op){
+		case 1:
+			VerCodPaciente();
+			//DadosPaciente();
+			break;
+		case 2:
+			CadastrarPacientes();
+			break;
+		case 0:
+			menuPrincipal();
+			break;
+		default:
+			
+			printf("OPCAO INVALIDA");
+	}
+
+	}while(op!=0);
+}
+
+void VerCodPaciente(){
+	limparT();
+	limparB();
+	int n =0;
+	int CPF;
+	paciente p;
+	printf("\n\t\t\t **************************\n");	
+	printf("\t\t\t *    LISTA DE PACIENTES  *\n");
+	printf("\t\t\t **************************\n\n");
+	
+	printf("\tINFORME O CPF DO PACIENTE:");
+	scanf("%d",&CPF);
+
+	FILE *f = fopen("Paciente.bin","rb");
+	getchar();
+
+
+	if(f==NULL){
+	limparT();
+	limparB();
+	printf("\n\t\t\t ******************************\n");	
+	printf("\t\t\t *    ARQUIVO NAO ENCONTRADO  *\n");
+	printf("\t\t\t ******************************\n\n");
+	getchar();
+	}else{
+		
+	while(fread(&p, sizeof(paciente),1,f)==1){
+			if (CPF==p.CPF)
+			{
+			limparT();
+			limparB();
+			printf("\n\n");
+			printf("\tCPF:%d\n", p.CPF);
+			printf("\tNOME:%s", p.nome_paciente);
+			printf("\tCODIGO:%d\n",p.codigo_paciente);
+			printf("\tDATA DE NASCIMENTO:%s", p.data_nascimento);
+			printf("\tSEXO:%c\n",p.sexo);
+			printf("\tTELEFONE:%s\n",p.Telefone);
+			printf("\n");
+			getchar();
+			cpfLg = p.CPF;
+			Exames();
+			}
+		
+		}
+				
+
+	}	if(CPF !=p.CPF && f!= NULL)
+        printf("\n\nCPF NAO ENCONTRADO!!\n\n");
+        getchar();
+        Atendimento();    
+	//fclose(f);
+}
+				
+void Especialidades(){
+	limparT();
+	limparB();
+	//printf("ESPECIALIDADES\n");
+	FILE *f = fopen("Medico.bin", "rb");
+	
+	if (!f)
+	{
+		printf("\n\tARQUIVO NAO ENCONTRADO!!!\n");
+		getchar();
+	}else{
+		medico m;
+		int n=0;
+		printf("\t\tESPECIALIDADES\n\n");
+		while(fread(&m, sizeof(medico), 1, f)){
+			printf("\tCODIGO %d\n",++n);
+			printf("\tNOME: %s",m.nome);
+			printf("\tESPECIALIDADE:%s", m.Especialidade);
+			printf("\tCRM:%d\n", m.CRM);
+			printf("\n");
+		}
+	 if(n == 0)
+        printf("Nenhuma pessoa cadastrada!!!");
+        getchar();
+    }
+	getchar();
+	menuPrincipal();
+}
+
+//Codigo para excluir CPF
+
+void excMed(){
+    setbuf(stdin, NULL);
+    int num = 0;
+    //Maloc - Pede um espaço de um medico
+    //Transforma em enderco de medico
+    medico *m = (medico *) malloc(sizeof(medico));
+    medico aux;
+    int CRM;
+    printf("INFORME O CRM QUE DESEJA EXCLUIR: ");
+    scanf("%d", &CRM);
+    FILE *f = fopen("medico.bin", "rb");
+    setbuf(stdin, NULL);
+    getchar();
+
+    while(fread(&aux, sizeof(medico), 1, f) == 1){
+       
+
+        if(aux.CRM != CRM){
+            strcpy(m[num].nome, aux.nome);
+            m[num].codigo_medico = aux.codigo_medico;
+            m[num].CRM = aux.CRM;
+            
+            strcpy(m[num].Telefone, aux.Telefone);
+            strcpy(m[num].Especialidade, aux.Especialidade);
+            strcpy(m[num].data_nascimento, aux.data_nascimento);
+          	m[num].sexo = aux.sexo;            
+            
+            num++;
+            m = (medico*) realloc(m, (num+1)*sizeof(medico));
+        }
+        
+    }
+    fclose(f);
+
+    f = fopen("medico.bin","wb");
+    fwrite(m, sizeof(medico), num, f);
+	limparT();
+	limparB();
+	printf("\n\nMEDICO EXCLUIDO COM SUCESSO!\n");
+	getchar();
+    fclose(f);
+    free(m);
+}
+
+void ExcPac(){
+	setbuf(stdin, NULL);
+    int num = 0;
+    //Maloc - Pede um espaço de um paciente
+    //Transforma em enderco de peciente
+    paciente *p = (paciente *) malloc(sizeof(paciente));
+    paciente aux;
+    int CPF;
+    printf("INFORME O CPF QUE DESEJA EXCLUIR: ");
+    scanf("%d", &CPF);
+    FILE *f = fopen("Paciente.bin", "rb");
+    setbuf(stdin, NULL);
+    getchar();
+
+    while(fread(&aux, sizeof(paciente), 1, f) == 1){
+       
+        if(aux.CPF != CPF){
+            strcpy(p[num].nome_paciente, aux.nome_paciente);
+            p[num].codigo_paciente = aux.codigo_paciente;
+            p[num].CPF = aux.CPF;
+            
+            strcpy(p[num].Telefone, aux.Telefone);
+            strcpy(p[num].data_nascimento, aux.data_nascimento);
+          	p[num].sexo = aux.sexo;            
+            
+            num++;
+            p = (paciente*) realloc(p, (num+1)*sizeof(paciente));
+        }
+        
+    }
+    fclose(f);
+
+    f = fopen("Paciente.bin","wb");
+    fwrite(p, sizeof(paciente), num, f);
+	limparT();
+	limparB();
+	printf("\n\nPACIENTE EXCLUIDO COM SUCESSO!\n");
+	getchar();
+    fclose(f);
+    free(p);
+}
+void excExa(){
+	setbuf(stdin, NULL);
+    int num = 0;
+    exame *E = (exame *) malloc(sizeof(exame));
+    exame aux;
+    int cod;
+    printf("INFORME O CODIGO DO EXAME QUE DESEJA EXCLUIR: ");
+    scanf("%d", &cod);
+    FILE *f = fopen("Exame.bin", "rb");
+    setbuf(stdin, NULL);
+    getchar();
+
+    while(fread(&aux, sizeof(exame), 1, f) == 1){
+       
+        if(aux.codigo != cod){
+        	strcpy(E[num].tipo, aux.tipo);
+            E[num].valor_exame = aux.valor_exame;
+            E[num].codigo = aux.codigo;
+        	
+     //     strcpy(e[num].codigo, aux.codigo);
+            strcpy(E[num].tipo, aux.tipo);
+          	E[num].valor_exame = aux.valor_exame;            
+            
+            num++;
+            E = (exame*) realloc(E, (num+1)*sizeof(exame));
+        }
+        
+    }
+    fclose(f);
+
+    f = fopen("Exame.bin","wb");
+    fwrite(E, sizeof(exame), num, f);
+	limparT();
+	limparB();
+	printf("\n\nEXAME EXCLUIDO COM SUCESSO!\n");
+	getchar();
+    fclose(f);
+    free(E);
+	
+}
+void SistemaOperacional(){
+	int op;
+	do{
+	limparT();
+	limparB();
+	printf("\n\t\t\t\tSISTEMA OPERACIONAL\n\n\n\n");
+	printf("\t\t\t\t 1- CADASTRO DE MEDICOS\n\n");
+	printf("\t\t\t\t 2- CADASTRO DE PACIENTES\n\n");
+	printf("\t\t\t\t 3- CADASTRO DE EXAMES\n\n");
+	printf("\t\t\t\t 4- RELATORIO\n\n");
+	printf("\t\t\t\t 0- VOLTAR\n");
+	scanf("%d",&op);
+	switch(op){
+		case 1:
+			CadastroMedicos();
+			break;
+		case 2:
+			CadastroPaciente();
+			break;
+		case 3:
+			CadastroExame();
+		case 4:
+			relatorio();
+			break;
+		case 0:
+			menuPrincipal();
+			break;
+		default:
+			printf("Opcao invalida");
+	}
+}while(op != 0);
+}
+void CadastroMedicos(){
+	limparT();
+	limparB();
+	int op;
+	printf("\t\t\t\tCADASTRO DE MEDICOS\n\n");
+	printf("\t1- CADASTRAR:\n");
+	printf("\t2- VERIFICAR:\n");
+	printf("\t3- EXCLUIR:\n");
+	printf("\t4- VER LISTA:\n");
+	printf("\t5- ALTERAR\n");
+	printf("\t0- VOLTAR\n");
+	scanf("%d",&op);
+	switch(op){
+		case 1:
+			CadastrarMedico();
+			break;
+		case 2:
+			DadosMedico();
+			break;
+		case 3:
+			excMed();
+			break;
+		case 4:
+			Especialidades();
+			break;
+		case 5:
+			AlterarPaciente();
+			break;
+		case 0:
+
+			SistemaOperacional();
+		default:
+		printf("OPCAO INVALIDA!\n");
+
+	}
+}
+void CadastrarMedico(){
+	limparT();
+	limparB();
+	medico Cadastro_medico;
+	
+	Cadastro_medico.codigo_medico = qtdMedico()+1;
+	
+	printf("\t\t\t\tCADASTRO DE MEDICOS\n\n");
+	printf("\tCRM: ");
+	scanf("%d",&Cadastro_medico.CRM);
+	getchar();
+	printf("\tNOME: ");
+	fgets(Cadastro_medico.nome, 50 , stdin);
+	printf("\tESPECIALIDADE:");
+	fgets(Cadastro_medico.Especialidade, 20 , stdin);
+	setbuf(stdin, NULL);
+	printf("\tDATA DE NASCIMENTO:");
+	fgets(Cadastro_medico.data_nascimento, 20 , stdin);
+	printf("\tSEXO: ");
+	scanf(" %c",&Cadastro_medico.sexo);
+	printf("\tTELEFONE: ");
+	scanf("%s",Cadastro_medico.Telefone);
+	printf("\n\n");
+ 	
+ 	FILE *ArquivoM = fopen("MedicoTexto.txt","a");
+	fprintf(ArquivoM, "%d %s %d %s %s %c %s\n",Cadastro_medico.CRM,  Cadastro_medico.nome, Cadastro_medico.codigo_medico, Cadastro_medico.Especialidade, Cadastro_medico.data_nascimento, Cadastro_medico.sexo, Cadastro_medico.Telefone);
+	fclose(ArquivoM);
+
+ 	//ESCREVE UM ARQUIVO BINARIO
+	FILE *f = fopen("Medico.bin","ab");
+	
+	if(fwrite(&Cadastro_medico, sizeof(medico),1,f)){
+		setbuf(stdin, NULL);
+		limparT();
+		limparB();
+		printf("\n\t\t\t **********************************\n");	
+		printf("\t\t\t * CADASTRO REALIZADO COM SUCESSO!  *\n");
+		printf("\t\t\t ************************************\n");
+		getchar();
+	}else{
+		limparT();
+		limparB();
+		printf("\n\t\t\t ****************************\n");	
+		printf("\t\t\t *       ERRO NO CADASTRO!  *\n");
+		printf("\t\t\t ****************************\n");
+		getchar();
+	}
+
+	fclose(f);
+ 
+}
+
+//Codigo para verificar e mostrar os dados do medico
+
+void DadosMedico(){
+	limparT();
+	limparB();
+	int CRM;
+	medico m;
+	printf("\n\tINFORME O CRM:");
+	scanf("%d",&CRM);
+
+	FILE *f = fopen("Medico.bin","rb");
+		
+	getchar();
+	while(fread(&m, sizeof(medico),1,f) ==1){
+			if (CRM==m.CRM)
+			{
+			printf("\n\n");
+			printf("\tCRM:%d\n", m.CRM);
+			printf("\tNOME:%s\n",m.nome);
+			printf("\tESPECIALIDADE:%s\n", m.Especialidade);
+			printf("\tCODIGO:%d\n",m.codigo_medico);
+			printf("\tDATA DE NASCIMENTO:%s\n",m.data_nascimento);
+			printf("\tSEXO:%c\n",m.sexo);
+			printf("\tTELEFONE:%s\n",m.Telefone);
+			printf("\n");
+			getchar();
+			return;
+		/* code */
+			}
+	}
+	limparT();
+	limparB();
+	printf("\n\tCRM NAO ENCONTRADO!!!\n");
+	getchar();
+}
+void CadastroPaciente(){
+	limparT();
+	limparB();
+	int op;
+	printf("\t\t\t\tCADASTRO DE PACIENTES\n\n");
+	printf("\t1- CADASTAR:\n");
+	printf("\t2- VERFICAR:\n");
+	printf("\t3- EXCLUIR:\n");
+	printf("\t4- LISTA:\n");
+	printf("\t5- ALTERAR:\n");
+	printf("\t0- VOLTAR\n");
+	scanf("%d",&op);
+	switch(op){
+		case 1:
+			CadastrarPacientes();
+			break;
+		case 2:
+			DadosPaciente();
+			break;
+		case 3:
+			ExcPac();
+			break;
+		case 4:
+			ListaPaciente();
+			break;
+		case 5:
+			AlterarPaciente();
+			break;
+		case 0:
+			SistemaOperacional();
+		default:
+		printf("\n\tOPCAO INVALIDA!\n");
+
+	}
+	
+}
+void CadastrarPacientes(){
+	limparT();
+	limparB();
+	paciente Cadastro_paciente;
+	Cadastro_paciente.codigo_paciente = qtdPaciente()+1;
+	printf("\n\t\t\t\tCADASTRO DE PACIENTES\n\n");
+	printf("\tCPF: ");
+	scanf("%d",&Cadastro_paciente.CPF);
+	getchar();
+	printf("\tNOME:");
+	fgets(Cadastro_paciente.nome_paciente, 50, stdin);
+	//setbuf(stdin, NULL);
+	printf("\tDATA DE NASCIMENTO: ");
+	fgets(Cadastro_paciente.data_nascimento, 20 ,stdin);
+	//setbuf(stdin, NULL);
+	printf("\tSEXO:");
+	scanf(" %c",&Cadastro_paciente.sexo);
+	printf("\tTELEFONE:");
+	scanf("%s",Cadastro_paciente.Telefone);
+
+	//Arquivo txt 
+	FILE *ArquivoP = fopen("PacienteTexto.txt","a");
+	fprintf(ArquivoP, "%d %s %s %c %s\n", Cadastro_paciente.CPF, Cadastro_paciente.nome_paciente, Cadastro_paciente.data_nascimento, Cadastro_paciente.sexo, Cadastro_paciente.Telefone);
+	fclose(ArquivoP);
+
+	//Arquivo que converte os dados recebidos em binario
+	FILE *f = fopen("Paciente.bin","ab");
+	if(fwrite(&Cadastro_paciente, sizeof(paciente),1,f)){
+		setbuf(stdin, NULL);
+		limparT();
+		limparB();
+		printf("\n\tCADASTRO REALIZADO COM SUCESSO!\n");
+		getchar();
+	}else{
+		limparT();
+		limparB();
+		printf("\n\tERRO NO CADASTRO!\n");
+
+	}
+	fclose(f);
+
+}
+void DadosPaciente(){
+	limparT();
+	limparB();
+	int CPF;
+	paciente p;
+	printf("\n\tINFORME O CPF:");
+	scanf("%d",&CPF);
+	
+	FILE *f = fopen("Paciente.bin","rb");
+	
+	getchar();
+	while(fread(&p, sizeof(paciente),1,f)==1){
+			if (CPF==p.CPF)
+			{
+			printf("\n\n");
+			printf("\tCPF:%d\n", p.CPF);
+			printf("\tNOME:%s\n", p.nome_paciente);
+			printf("\tCODIGO:%d\n",p.codigo_paciente);
+			printf("\tDATA DE NASCIMENTO:%s\n", p.data_nascimento);
+			printf("\tSEXO:%c\n",p.sexo);
+			printf("\tTELEFONE:%s\n",p.Telefone);
+			printf("\n");
+			getchar();
+			return;
+			}
+}
+	limparT();
+	limparB();
+	printf("\n\tCPF NAO ENCONTRADO!!!\n");
+	getchar();
+}
+
+void AlterarPaciente(){
+	FILE *f = fopen("Paciente.bin","r+b");
+	int linha = 0;
+	//"rb+" pra que?
+	paciente p;
+	int CPF;
+	printf("\n\tINFORME O CPF DO PACIENTE:\n");
+	scanf("%d",&CPF);
+
+	//Verificar o que ta fazendo
+	int leu;
+	do{
+		leu = fread(&p,sizeof(paciente), 1, f);
+		linha++;
+	}while(p.CPF != CPF && leu != 0);
+
+	if (leu == 1)
+	{
+		system("clear");
+        setbuf(stdin, NULL);
+        paciente p;
+        printf("\n\t*ATUALIZAR PACIENTE:%d*\n\n", linha);
+        printf("NOVO PACIENTE:");
+        fgets(p.nome_paciente,50,stdin);
+        printf("INFORME O CPF DO PACIENTE:");
+        scanf("%d",&p.CPF);
+        setbuf(stdin, NULL);
+        
+
+        fseek(f, 0, SEEK_SET);//Para o curso voltar para o inicio
+        fseek(f, sizeof(paciente)*(--linha), SEEK_SET);
+        fwrite(&p, sizeof(paciente),1,f);
+	}
+
+}
+
+void ListaPaciente(){
+	limparT();
+	limparB();
+	//printf("ESPECIALIDADES\n");
+	FILE *f = fopen("Paciente.bin", "rb");
+	
+	if (!f)
+	{
+		printf("\n\tARQUIVO NAO ENCONTRADO!!!\n");
+		getchar();
+	}else{
+		paciente p;
+		int n=0;
+		printf("\t\tLISTA DE PACIENTES\n\n");
+
+
+		while(fread(&p, sizeof(paciente), 1, f)){
+			printf("\tCodigo %d\n",++n);
+			printf("\tNome: %s",p.nome_paciente);
+			printf("\tCPF:%d\n", p.CPF);
+			printf("\tDATA DE NASCIMENTO:%s", p.data_nascimento);
+			printf("\tSEXO:%c\n",p.sexo);
+			printf("\tTELEFONE:%s\n",p.Telefone);
+			printf("\n");
+		}
+	 if(n == 0)
+        printf("Nenhuma pessoa cadastrada!!!");
+        getchar();
+    }
+	getchar();
+	menuPrincipal();
+}
+
+
+void CadastroExame(){
+	limparT();
+	limparB();
+	int op;
+	printf("\t\t\t\tCADASTRO DE EXAMES\n\n");
+	printf("\t1- CADASTRAR:\n");
+	printf("\t2- INFORMACOES DE EXAME:\n");
+	printf("\t3- EDITAR:\n");
+	printf("\t4- EXCLUIR:\n");
+	printf("\t0- VOLTAR\n");
+	scanf("%d",&op);
+	switch(op){
+		case 1:
+			CadastrarExames();
+			break;
+		case 2:
+			DadosExame();
+			break;
+		case 3:
+			break;
+		case 4:
+			excExa();
+		case 0:
+			SistemaOperacional();
+		default:
+		printf("OPCAO INVALIDA!\n");
+
+	}
+	
+}
+void CadastrarExames(){
+	limparT();
+	limparB();
+	exame Cadastro_exame;
+	printf("\t\t\t\tCADASTRO DE EXAMES\n\n");
+	printf("\tTIPO: ");
+	scanf("%s",Cadastro_exame.tipo);
+	printf("\tVALOR: ");
+	scanf("%d",&Cadastro_exame.valor_exame);
+	printf("\tCODIGO: ");
+	scanf("%d",&Cadastro_exame.codigo);
+	printf("\n\n");
+
+ 	FILE *ArquivoE = fopen("Exame.txt","a");
+	fprintf(ArquivoE, "%s %d %d\n",Cadastro_exame.tipo, Cadastro_exame.valor_exame, Cadastro_exame.codigo);
+	fclose(ArquivoE);
+
+ 	//VERIFICAR
+	FILE *f = fopen("Exame.bin","ab");
+	if(fwrite(&Cadastro_exame, sizeof(exame),1,f)){
+		setbuf(stdin, NULL);
+		limparT();
+		limparB();
+		printf("\n\t\t\t **********************************\n");	
+		printf("\t\t\t * CADASTRO REALIZADO COM SUCESSO!  *\n");
+		printf("\t\t\t ************************************\n");
+		getchar();
+	}else{
+		limparT();
+		limparB();
+		printf("\n\t\t\t ****************************\n");	
+		printf("\t\t\t *       ERRO NO CADASTRO!  *\n");
+		printf("\t\t\t ****************************\n");
+		getchar();
+	}
+	fclose(f);
+}
+void DadosExame(){
+	limparT();
+	limparB();
+	int Cod;
+	exame e;
+	printf("\n\tINFORME O CODIGO:");
+	scanf("%d",&Cod);
+	
+	FILE *f = fopen("Exame.bin","rb");
+	
+	getchar();
+	while(fread(&e, sizeof(exame),1,f)==1){
+			if (Cod==e.codigo)
+			{
+			printf("\n\n");
+			printf("\tTIPO:%s\n", e.tipo);
+			printf("\tVALOR:%d\n", e.valor_exame);
+			printf("\tCODIGO:%d\n", e.codigo);
+			
+			printf("\n");
+			getchar();
+			return;
+			}
+}
+	limparT();
+	limparB();
+	printf("\n\tEXAME NAO ENCONTRADO!!!\n");
+	getchar();
+	
+}
+void Exames(){
+	limparT();
+	limparB();
+	exame Tipos;
+	int op;
+
+	printf("\n\t\t\t\tLISTA DE ESPECIALIDADES\n\n\n\n");
+	printf("\t 1- PEDIATRIA\n\n");
+	printf("\t 2- CARDIOLOGIA\n\n");
+	printf("\t 3- OFTALMOLOGIA\n\n");
+	printf("\t 4- ONCOLOGIA\n\n");
+	printf("\t 0- VOLTAR\n");
+	scanf("%d",&op);
+	switch(op){
+		case 1:
+			Pediatria();
+			break;
+		case 2:
+			Cardiologia();
+			break;
+		case 3:
+			Oftalmologia();
+			break;
+		case 4:
+			Oncologia();
+			break;
+		default:
+			printf("\n\tOPCAO INVALIDA");
+	}	
+}
+int Pediatria(){
+	limparT();
+	limparB();
+	int total;
+	int op;
+	agendamento a;
+	//CRM = 100 do medico ja cadastrado EX: Gemerson Pediatria
+	a.CRM = 100;
+	printf("\n\t\t\t\tEXAMES PEDIATRICOS\n\n\n\n");
+	printf("\n\tESCOLHA O TIPO DE EXAME\n\n\n\n");
+	printf("\t 1- PRE-NATAL R$-60.00\n\n");
+	printf("\t 2- TESTE DO PEZINHO R$-40.00\n\n");
+	printf("\t 3- COLESTEROL R$-80.00 \n\n");
+	printf("\t 4- AUDIOMETRIA R$-50.00\n\n");
+	printf("\t 0- VOLTAR\n");
+	scanf("%d",&op);
+	switch(op){
+		case 1:
+			setbuf(stdin,NULL);
+			printf("INFORME A DATA DO AGENDAMENTO: ");
+			fgets(a.data_agendamento, 20,stdin);
+			printf("INFORME A HORA DO AGENDAMENTO: ");
+			fgets(a.hora_agendamento, 20, stdin);
+			a.cpf = cpfLg;
+			a.exame.valor_exame = 60;
+			strcpy(a.exame.catExame,"Pediatria");
+			strcpy(a.exame.tipo,"PRE-NATAL");
+			salvarExame(a);
+			total += 60;
+			break;
+		case 2:
+			setbuf(stdin,NULL);
+			printf("INFORME A DATA DO AGENDAMENTO: ");
+			fgets(a.data_agendamento, 20,stdin);
+			printf("INFORME A HORA DO AGENDAMENTO: ");
+			fgets(a.hora_agendamento, 20, stdin);
+			a.cpf = cpfLg;
+			a.exame.valor_exame = 40;
+			strcpy(a.exame.catExame,"Pediatria");
+			strcpy(a.exame.tipo,"PEZINHO");
+			salvarExame(a);
+			total = a.exame.valor_exame;
+			break;
+		case 3:
+			setbuf(stdin,NULL);
+			printf("INFORME A DATA DO AGENDAMENTO: ");
+			fgets(a.data_agendamento, 20,stdin);
+			printf("INFORME A HORA DO AGENDAMENTO: ");
+			fgets(a.hora_agendamento, 20, stdin);
+			a.cpf = cpfLg;
+			a.exame.valor_exame = 80;
+			strcpy(a.exame.catExame,"Pediatria");
+			strcpy(a.exame.tipo,"COLESTEROL");
+			salvarExame(a);
+			total = a.exame.valor_exame;
+			break;
+		case 4:
+			setbuf(stdin,NULL);
+			printf("INFORME A DATA DO AGENDAMENTO: ");
+			fgets(a.data_agendamento, 20,stdin);
+			printf("INFORME A HORA DO AGENDAMENTO: ");
+			fgets(a.hora_agendamento, 20, stdin);
+			a.cpf = cpfLg;
+			a.exame.valor_exame = 50;
+			strcpy(a.exame.catExame,"Pediatria");
+			strcpy(a.exame.tipo,"AUDIOMETRIA");
+			salvarExame(a);
+			total = a.exame.valor_exame;
+			break;
+			default:
+			printf("\n\tOPCAO INVALIDA");
+	}	
+			valor_total += total;
+	
+}
+int Cardiologia(){
+	limparT();
+	limparB();
+	int op;
+	agendamento a;
+	//CRM = 200 do medico ja cadastrado EX: Eugenio Cardiologia
+	a.CRM = 200;
+	printf("\n\t\t\t\tEXAMES CARDIOLOGICOS\n\n\n\n");
+	printf("\n\tESCOLHA O TIPO DE EXAME\n\n\n\n");
+	printf("\t 1- ELETROCARDIOGRAMA R$-200.00\n\n");
+	printf("\t 2- ELETROCARDIOGRAFIA R$-400.00\n\n");
+	printf("\t 3- ECOCARDIOGRAMA R$-300.00 \n\n");
+	printf("\t 4- RADIOGRAFIA R$-250.00\n\n");
+	printf("\t 0- VOLTAR\n");
+	scanf("%d",&op);
+	switch(op){
+		case 1:
+			setbuf(stdin,NULL);
+			printf("INFORME A DATA DO AGENDAMENTO: ");
+			fgets(a.data_agendamento, 20,stdin);
+			printf("INFORME A HORA DO AGENDAMENTO: ");
+			fgets(a.hora_agendamento, 20, stdin);
+			a.cpf = cpfLg;
+			a.exame.valor_exame = 200;
+			strcpy(a.exame.catExame,"Cardiologia");
+			strcpy(a.exame.tipo,"ELETROCARDIOGRAMA");
+			salvarExame(a);
+		
+			break;
+		case 2:
+
+			setbuf(stdin,NULL);
+			printf("INFORME A DATA DO AGENDAMENTO: ");
+			fgets(a.data_agendamento, 20,stdin);
+			printf("INFORME A HORA DO AGENDAMENTO: ");
+			fgets(a.hora_agendamento, 20, stdin);
+			a.cpf = cpfLg;
+			a.exame.valor_exame = 400;
+			strcpy(a.exame.catExame,"Cardiologia");
+			strcpy(a.exame.tipo,"ELETROCARDIOGRAFIA");
+			salvarExame(a);
+			
+			break;
+		case 3:
+			setbuf(stdin,NULL);
+			printf("INFORME A DATA DO AGENDAMENTO: ");
+			fgets(a.data_agendamento, 20,stdin);
+			printf("INFORME A HORA DO AGENDAMENTO: ");
+			fgets(a.hora_agendamento, 20, stdin);
+			a.cpf = cpfLg;
+			a.exame.valor_exame = 300;
+			strcpy(a.exame.catExame,"Cardiologia");
+			strcpy(a.exame.tipo,"ECOCARDIOGRAMA");
+			salvarExame(a);
+			break;
+		case 4:
+			setbuf(stdin,NULL);
+			printf("INFORME A DATA DO AGENDAMENTO: ");
+			fgets(a.data_agendamento, 20,stdin);
+			printf("INFORME A HORA DO AGENDAMENTO: ");
+			fgets(a.hora_agendamento, 20, stdin);
+			a.cpf = cpfLg;
+			a.exame.valor_exame = 250;
+			strcpy(a.exame.catExame,"Cardiologia");
+			strcpy(a.exame.tipo,"RADIOGRAFIA");
+			salvarExame(a);
+		
+			break;
+		default:
+			printf("\n\tOpcao invalida");
+	}	
+
+}
+int Oftalmologia(){
+	limparT();
+	limparB();
+	int op;
+	agendamento a;
+	a.CRM = 300;
+	printf("\n\t\t\t\tEXAMES OFTAMOLOGICOS\n\n\n\n");
+	printf("\n\tESCOLHA O TIPO DE EXAME\n\n\n\n");
+	printf("\t 1- BIOMOCROSCOPIA R$-200.00\n\n");
+	printf("\t 2- CAMPIMETRIA R$-400.00\n\n");
+	printf("\t 3- GONIOSCOPIA R$-300.00 \n\n");
+	printf("\t 4- MAPEAMENTO DA RETINA R$-250.00\n\n");
+	printf("\t 0- VOLTAR\n");
+	scanf("%d",&op);
+	switch(op){
+		case 1:
+			setbuf(stdin,NULL);
+			printf("INFORME A DATA DO AGENDAMENTO: ");
+			fgets(a.data_agendamento, 20,stdin);
+			printf("INFORME A HORA DO AGENDAMENTO: ");
+			fgets(a.hora_agendamento, 20, stdin);
+			a.cpf = cpfLg;
+			a.exame.valor_exame = 200;
+			strcpy(a.exame.catExame,"Oftalmologia");
+			strcpy(a.exame.tipo,"BIOMOCROSCOPIA");
+			salvarExame(a);
+			break;
+		case 2:
+			setbuf(stdin,NULL);
+			printf("INFORME A DATA DO AGENDAMENTO: ");
+			fgets(a.data_agendamento, 20,stdin);
+			printf("INFORME A HORA DO AGENDAMENTO: ");
+			fgets(a.hora_agendamento, 20, stdin);
+			a.cpf = cpfLg;
+			a.exame.valor_exame = 200;
+			strcpy(a.exame.catExame,"Oftalmologia");
+			strcpy(a.exame.tipo,"CAMPIMETRIA");
+			salvarExame(a);
+			break;
+		case 3:
+			setbuf(stdin,NULL);
+			printf("INFORME A DATA DO AGENDAMENTO: ");
+			fgets(a.data_agendamento, 20,stdin);
+			printf("INFORME A HORA DO AGENDAMENTO: ");
+			fgets(a.hora_agendamento, 20, stdin);
+			a.cpf = cpfLg;
+			a.exame.valor_exame = 200;
+			strcpy(a.exame.catExame,"Oftalmologia");
+			strcpy(a.exame.tipo,"GONIOSCOPIA");
+			salvarExame(a);
+			break;
+		case 4:
+			setbuf(stdin,NULL);
+			printf("INFORME A DATA DO AGENDAMENTO: ");
+			fgets(a.data_agendamento, 20,stdin);
+			printf("INFORME A HORA DO AGENDAMENTO: ");
+			fgets(a.hora_agendamento, 20, stdin);
+			a.cpf = cpfLg;
+			a.exame.valor_exame = 200;
+			strcpy(a.exame.catExame,"Oftalmologia");
+			strcpy(a.exame.tipo,"MAPEAMENTO DA RETINA");
+			salvarExame(a);
+			break;
+		default:
+			printf("\n\tOpcao invalida");
+	}	
+
+}
+int Oncologia(){
+	limparT();
+	limparB();
+	agendamento a;
+	a.CRM = 400;
+	int op;
+	printf("\n\t\t\t\tEXAMES ONCOLOGICOS\n\n\n\n");
+	printf("\n\tESCOLHA O TIPO DE EXAME\n\n\n\n");
+	printf("\t 1- MAMOGRAFIA R$-200.00\n\n");
+	printf("\t 2- RADIOLOGIA CONVENCIONAL R$-400.00\n\n");
+	printf("\t 3- TOMOGRAFIA COMPUTADORIZADA R$-300.00 \n\n");
+	printf("\t 4- ULTRA-SOM CONVENCIONAL R$-250.00\n\n");
+	printf("\t 0- VOLTAR\n");
+	scanf("%d",&op);
+	switch(op){
+		case 1:
+			setbuf(stdin,NULL);
+			printf("INFORME A DATA DO AGENDAMENTO: ");
+			fgets(a.data_agendamento, 20,stdin);
+			printf("INFORME A HORA DO AGENDAMENTO: ");
+			fgets(a.hora_agendamento, 20, stdin);
+			a.cpf = cpfLg;
+			a.exame.valor_exame = 200;
+			strcpy(a.exame.catExame,"Oncologia");
+			strcpy(a.exame.tipo,"MAMOGRAFIA");
+			salvarExame(a);
+			break;
+		case 2:
+			setbuf(stdin,NULL);
+			printf("INFORME A DATA DO AGENDAMENTO: ");
+			fgets(a.data_agendamento, 20,stdin);
+			printf("INFORME A HORA DO AGENDAMENTO: ");
+			fgets(a.hora_agendamento, 20, stdin);
+			a.cpf = cpfLg;
+			a.exame.valor_exame = 200;
+			strcpy(a.exame.catExame,"Oncologia");
+			strcpy(a.exame.tipo,"RADIOLOGIA CONVENCIONAL");
+			salvarExame(a);
+			break;
+		case 3:
+			setbuf(stdin,NULL);
+			printf("INFORME A DATA DO AGENDAMENTO: ");
+			fgets(a.data_agendamento, 20,stdin);
+			printf("INFORME A HORA DO AGENDAMENTO: ");
+			fgets(a.hora_agendamento, 20, stdin);
+			a.cpf = cpfLg;
+			a.exame.valor_exame = 200;
+			strcpy(a.exame.catExame,"Oncologia");
+			strcpy(a.exame.tipo,"TOMOGRAFIA COMPUTADORIZADA");
+			salvarExame(a);
+			break;
+		case 4:
+			setbuf(stdin,NULL);
+			printf("INFORME A DATA DO AGENDAMENTO: ");
+			fgets(a.data_agendamento, 20,stdin);
+			printf("INFORME A HORA DO AGENDAMENTO: ");
+			fgets(a.hora_agendamento, 20, stdin);
+			a.cpf = cpfLg;
+			a.exame.valor_exame = 200;
+			strcpy(a.exame.catExame,"Oncologia");
+			strcpy(a.exame.tipo,"ULTRA-SOM CONVENCIONAL");
+			salvarExame(a);
+			break;
+		default:
+			printf("\n\tOpcao invalida");
+	}	
+
+}
+int qtdMedico(){
+    int qtd = 0;
+    FILE *f = fopen("Medico.bin", "rb");
+    medico p;
+   if (f != NULL)
+   {
+   	 while(fread(&p, sizeof(paciente),1,f )){
+        qtd++;
+    }
+   }
+    return qtd;
+}
+int qtdPaciente(){
+    int qtd = 0;
+    FILE *f = fopen("Paciente.bin", "rb");
+    paciente p;
+if (f != NULL)
+   {
+   	 while(fread(&p, sizeof(paciente),1,f )){
+        qtd++;
+    }
+   }
+    return qtd;
+}
+void relatorio(){
+	limparT();
+	limparB();
+	agendamento ag;
+	medico m;
+	setbuf(stdin, NULL);
+
+	printf("\n\t\t\t ********************\n");	
+	printf("\t\t 	 *     RELATORIO    *\n");
+	printf("\t\t\t ********************\n\n");
+	
+	//Abrindo o arquivo binario
+	FILE *f = fopen("agendamento.bin","rb");
+	FILE *med = fopen("Medico.bin","rb");
+	while(fread(&ag, sizeof(agendamento),1,f)==1){
+		printf("\tDATA AGENDADA:%s", ag.data_agendamento);
+		printf("\tHORA:%s",ag.hora_agendamento);
+		printf("\tVALOR:%d\n",ag.exame.valor_exame);	
+		while(fread(&m, sizeof(medico),1,med) ==1){
+			if (ag.CRM == m.CRM)
+			{
+			printf("\tCRM:%d\n", m.CRM);
+			printf("\tMEDICO:%s",m.nome);
+			printf("\tESPECIALIDADE:%s\n", m.Especialidade);
+		
+			
+		}
+		
+		}
+		 fseek(med, 0, SEEK_SET);	//Para o curso voltar para o inicio
+		 printf("\n");
+		 
+	}
+		
+		fclose(f);
+		fclose(med);
+//		printf("Valor total arrecadado exames: %d", valor_total);
+		getchar();
+		
+}
+
+int Soma(){
+	
+}	
+void salvarExame(agendamento a){
+	setbuf(stdin, NULL);
+	FILE *f = fopen ("agendamento.bin", "ab");
+	if(fwrite(&a, sizeof(agendamento),1,f)){
+		printf("Agendameto realizado com SUCESSO!!!");
+		getchar();
+		fclose(f);
+		
+	}else
+		printf("Erro ao agendar!!!");
+		getchar();
+		menuPrincipal();
+		fclose(f);
+}
